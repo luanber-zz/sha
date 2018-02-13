@@ -70,20 +70,30 @@ def add_size(binary_0):
 pad = add_size(binary_0)
 
 #print('padded message:', '\n', pad, '\n')
-print('padded message size:', len(pad))
+print('padded message size:', len(pad), '\n')
 
 #now the message is ( 0 mod 512 ), and is padded correctly....
 #tested with a big message: ok!
 
-# cutting padded message into 512bit blocks:
+#3- cutting padded message into 512bit blocks:
+#   i have to make the blocks cutted in 32bit words ....
 
 blocks=[]
 
 for n in range(int(len(pad) / 512)) :
-	blocks.append(pad[n * 512 : (n+1) * 512 ])
-	#print("block ",n, ":", pad[n * 512 : (n+1) * 512 ] )
+	blocks.append([])
 	print("block ",n, " size:", len(pad[n * 512 : (n+1) * 512 ]) )
+	for m in range(int(512/32)):
+		blocks[len(blocks)-1].append(pad[(n * 512) + (m * 32) : (n * 512) + (m+1) *32 ])
+	#print("block ",n, ":", pad[n * 512 : (n+1) * 512 ] )
 #print(blocks)
+#print(len(blocks), '\n')
+#print(len(blocks[3][3]), '\n')
+
+# now i have a blocks list, with blocks that contains
+# 16 words each, like this:
+# blocks = [block1, block2, block3= [word1, ....., word 16] ]
+
 
 #SHA-1 constants:
 #hex
@@ -93,7 +103,7 @@ k_2 = '8f1bbcdc' # 40 <= t <= 59
 k_3 = 'ca62c1d6' # 60 <= t <= 79
 
 #SHA-1 Initial hash values:
-
+#hex
 H_0_0 = '67452301'
 H_0_1 = 'efcdab89'
 H_0_2 = '98badcfe'
