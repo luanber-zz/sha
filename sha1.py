@@ -1,6 +1,7 @@
 # attempt to implement SHA-1, based on
 # the Nist instructions and some material
 # you can use this if you want, as "as is".
+
 import binascii
 
 def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
@@ -21,7 +22,7 @@ def int2bytes(i):
     return binascii.unhexlify(hex_string.zfill(n + (n & 1)))
 
 
-message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+message = "crypto"
 print('original message:', message, '\n')
 #1.1 - converting ASCII to binary:
 #1.2 - add 1 to the end
@@ -47,8 +48,8 @@ binary_0 = add_zeros(binary)
 # 80 = 000....0  0  0  1  1  0  0  0  0
 # 80 = 000....0  0  0  64+16+0  0  0  0
 
-#print('binary with zeros:', '\n', binary_0, '\n')
 print('length of the binary with zeros:', len(binary_0), '\n')
+
 #now i have the message in binary, added "1" to the end and "0's"
 #until it is 448 mod 512....
 #now i have to add a 64bit number with the size of the message pre-pad
@@ -69,7 +70,6 @@ def add_size(binary_0):
 
 pad = add_size(binary_0)
 
-#print('padded message:', '\n', pad, '\n')
 print('padded message size:', len(pad), '\n')
 
 #now the message is ( 0 mod 512 ), and is padded correctly....
@@ -85,10 +85,6 @@ for n in range(int(len(pad) / 512)) :
 	print("block ",n, " size:", len(pad[n * 512 : (n+1) * 512 ]) )
 	for m in range(int(512/32)):
 		blocks[len(blocks)-1].append(pad[(n * 512) + (m * 32) : (n * 512) + (m+1) *32 ])
-	#print("block ",n, ":", pad[n * 512 : (n+1) * 512 ] )
-#print(type(blocks[1][1]))
-#print(len(blocks), '\n')
-#print(len(blocks[3][3]), '\n')
 
 # now i have a blocks list, with blocks that contains
 # 16 words each, like this:
@@ -98,32 +94,28 @@ for n in range(int(len(pad) / 512)) :
 
 #SHA-1 constants:
 #hex
-k_0 = '5a827999' # 0  <= t <= 19
-k_1 = '6ed9eba1' # 20 <= t <= 39
-k_2 = '8f1bbcdc' # 40 <= t <= 59
-k_3 = 'ca62c1d6' # 60 <= t <= 79
-k = []
+def k_int(t):
+	if 0  <= t <= 19:
+		return int('5a827999',16)
+	elif 20 <= t <= 39:
+		return int('6ed9eba1',16)
+	elif 40 <= t <= 59:
+		return int('8f1bbcdc',16)
+	elif 60 <= t <= 79:
+		return int('ca62c1d6',16)
+	else:
+		print('something went wrong with \'k\' definition \n')
 
-#joining into a list
-
-for i in range(3):
-	k.append(eval('k_'+str(i)))
-
-print("the k matrix is: ", '\n', k, '\n')
 
 #SHA-1 Initial hash values:
 #hex
-H_0_0 = '67452301'
-H_0_1 = 'efcdab89'
-H_0_2 = '98badcfe'
-H_0_3 = '10325476'
-H_0_4 = 'c3d2e1f0'
+H_0_0 = int('67452301',16)
+H_0_1 = int('efcdab89',16)
+H_0_2 = int('98badcfe',16)
+H_0_3 = int('10325476',16)
+H_0_4 = int('c3d2e1f0',16)
 
 H = [[H_0_0, H_0_1, H_0_2, H_0_3, H_0_4]];
-print("The hash values matrix is: ", '\n', H, '\n')
-#for i in range 4:
-#	H[0].append(eval('H_0_', str(i)))
-#print(H)
 
 
 #4 - defining left_rotation:
@@ -134,79 +126,88 @@ print("The hash values matrix is: ", '\n', H, '\n')
 def rotate(lista, n):
 	return lista[-n:] + lista[:-n] #(str)
 
-# lr = left rotate
-def lr (lista):
-	return rotate(lista, -1) #(str)
-
 # a = 65 (num)
 # b = 64 (num)
-# bin_a = bin(a) = '1b1000001' (str)
-# int(bin(a[2:])) = 1000001 (num)
-# bin (int(bin_a[2:]) ^ int(bin_b[2:]) ) = '0b1' (str) 
-# what a mess!!!! lack of organization
-
+# bin(a&b)[2:] is what i was expecting .-.
 # in the blocks lists, we have words='101011....1010', in string form...
-# so to do XOR we have to take them
-
 
 def XOR(l1, l2):
-	return bin( int('0b'+ l1, 2) ^ int('0b'+ l2, 2) )[2:]
+	return bin( l1 ^ l2 )[2:]
+
+def AND(l1, l2):
+	return bin( l1 & l2 )[2:]
+
 #now the XOR returns a string with a binary number:
 # XOR('1001', '1010') = '1000'
 
+def ft(x,y,z,t):
 
-print(int(blocks[1][1], 2))
-print("XOR:", XOR(blocks[1][1], blocks[1][2]))
-
-def ft(x,y,z):
+	x_compl = ~int(x,2)
+	
 	if 0 <= t <= 19:
-		return (XOR(x, y), (int(~x) ^ int(z)) );
-	elif (20 <= t <= 39 or 60 <= t <= 79):
+		return XOR( AND(x,y), AND(xbin, z) );
+	
+	if (20 <= t <= 39 or 60 <= t <= 79):
 		return XOR( XOR(x,y), z)
-	elif 40 <= t <= 59:
-		return XOR( XOR())
-#ft is inconsistent, wrong and incomplete...
+	
+	if 40 <= t <= 59:
+		return XOR( AND(x,y), XOR(AND(x,z), AND(y,z)) )
 
 # now i know how to use xor, let's try
 # to iterate:
 
-print(range(len(blocks)))
-
+print('words\' length is: ', len(blocks[0]), '\n')
 
 for i in range(len(blocks)):
-	
-	for t in range(79):
-
-		if t >= 15:
-			w_1 = blocks[i][t-3]
-			w_2 = blocks[i][t-8]
-			w_3 = blocks[i][t-14]
-			w_4 = blocks[i][t-16]
-			blocks[i].append( lr( XOR(XOR(XOR(w_4, w_3), w_2), w_1) ))
-			#print("attempt to do:", lr( XOR(XOR(XOR(w_4, w_3), w_2), w_1) ) , "\n\n\n")
-
-	H.append([])
+	print("starting iteration...\n")
+	#initializing variables
 	a = H[i][0]
+	abin = bin(a)[2:]
 	b = H[i][1]
+	bbin = bin(b)[2:]
 	c = H[i][2]
 	d = H[i][3]
 	e = H[i][4]
 
-	for t in range(79):
+	for t in range(80):
 
-		#instead of doing operations in bin directly, I'm
-		#transform everything to int, sum and reconvert to
-		#binary, what's painfully slow and do many times the same work
-		T = bin( int (rotate(a, -5), 2)  + int(e,16) + int(k[t],16) + int(blocks[i][t]) )
-		#ft is missing in T eq. 
+		if t >= 16:
+			w_1 = blocks[i][t-3]
+			w_2 = blocks[i][t-8]
+			w_3 = blocks[i][t-14]
+			w_4 = blocks[i][t-16]
+			blocks[i].append( rotate ( XOR(XOR(XOR(w_4, w_3), w_2), w_1) , -1 ))
+	
+	print('words in the block', i, ' :', len(blocks[i]), '\n')
+
+
+	for t in range(80):
+		print('kt in iter ', t, ' : ', k_int(t), '\n')
+		ft_bin = ft(b,c,d,t)
+		ft_int = int(ft_bin, 2)
+		print(len(str(ft_int)))
+		aint   = int(rotate(abin, -5), 2)
+		Tint   = aint + ft_int + int(e,16) + k_int(t) + int(blocks[i][t],2)
+		print('length T: ', len(str(T)))
 		e = d
 		d = c
-		c = rotate(b, -30)
+		c = int(rotate(bbin, -30),2)
 		b = a
 		a = T
 
-	H[i+1][0] = a + H[i][0]
-	H[i+1][1] = b + H[i][1]
-	H[i+1][2] = c + H[i][2]
-	H[i+1][3] = d + H[i][3]
-	H[i+1][4] = e + H[i][4]
+	H.append([])
+	H[i+1].append( a + H[i][0] )
+	H[i+1].append( b + H[i][1] )
+	H[i+1].append( c + H[i][2] )
+	H[i+1].append( d + H[i][3] )
+	H[i+1].append( e + H[i][4] )
+
+print(H[len(H)-1])
+
+hash = ''
+for i in range( len(H[len(H)-1]) ):
+	hexad = hex(int(H[len(H)-1][i], 2) )[2:]
+	hash += hexad
+
+print('hash length: ', len(hash))
+print("hash result:", hash , ":)")
