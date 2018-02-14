@@ -132,68 +132,67 @@ def rotate(lista, n):
 # in the blocks lists, we have words='101011....1010', in string form...
 
 def XOR(l1, l2):
-	return bin( l1 ^ l2 )[2:]
+	return int( bin( l1 ^ l2 )[2:], 2)
 
 def AND(l1, l2):
-	return bin( l1 & l2 )[2:]
+	return int( bin( l1 & l2 )[2:], 2)
 
 #now the XOR returns a string with a binary number:
-# XOR('1001', '1010') = '1000'
+# XOR(int, int ) = '1000'
 
 def ft(x,y,z,t):
-
-	x_compl = ~int(x,2)
 	
+	x_compl = ~x
 	if 0 <= t <= 19:
-		return XOR( AND(x,y), AND(xbin, z) );
+		return XOR( AND(x,y), AND(x_compl, z) );
 	
 	if (20 <= t <= 39 or 60 <= t <= 79):
 		return XOR( XOR(x,y), z)
 	
 	if 40 <= t <= 59:
 		return XOR( AND(x,y), XOR(AND(x,z), AND(y,z)) )
+#ft retuns "int"
 
-# now i know how to use xor, let's try
-# to iterate:
+#5- iteration
 
 print('words\' length is: ', len(blocks[0]), '\n')
 
 for i in range(len(blocks)):
 	print("starting iteration...\n")
 	#initializing variables
-	a = H[i][0]
-	abin = bin(a)[2:]
-	b = H[i][1]
-	bbin = bin(b)[2:]
-	c = H[i][2]
-	d = H[i][3]
-	e = H[i][4]
 
 	for t in range(80):
 
 		if t >= 16:
-			w_1 = blocks[i][t-3]
-			w_2 = blocks[i][t-8]
-			w_3 = blocks[i][t-14]
-			w_4 = blocks[i][t-16]
-			blocks[i].append( rotate ( XOR(XOR(XOR(w_4, w_3), w_2), w_1) , -1 ))
+			w_1 = int(blocks[i][t-3] , 2)
+			w_2 = int(blocks[i][t-8] , 2)
+			w_3 = int(blocks[i][t-14], 2)
+			w_4 = int(blocks[i][t-16], 2)
+			o1 = XOR(w_4,w_3)
+			o2 = XOR(o1, w_2)
+			o3 = XOR(o2, w_1)
+			blocks[i].append( rotate ( bin(o3)[2:] , -1 ))
 	
 	print('words in the block', i, ' :', len(blocks[i]), '\n')
 
+	a = H[i][0]
+	b = H[i][1]
+	c = H[i][2]
+	d = H[i][3]
+	e = H[i][4]
+
+	abin = bin(a)[2:]
+	bbin = bin(b)[2:]
 
 	for t in range(80):
-		print('kt in iter ', t, ' : ', k_int(t), '\n')
-		ft_bin = ft(b,c,d,t)
-		ft_int = int(ft_bin, 2)
-		print(len(str(ft_int)))
-		aint   = int(rotate(abin, -5), 2)
-		Tint   = aint + ft_int + int(e,16) + k_int(t) + int(blocks[i][t],2)
-		print('length T: ', len(str(T)))
+		ft_int = ft(b,c,d,t)
+		arot   = int(rotate(abin, -5), 2)
+		Tint   = arot + ft_int + e + k_int(t) + int(blocks[i][t],2)
 		e = d
 		d = c
 		c = int(rotate(bbin, -30),2)
 		b = a
-		a = T
+		a = Tint
 
 	H.append([])
 	H[i+1].append( a + H[i][0] )
@@ -206,7 +205,7 @@ print(H[len(H)-1])
 
 hash = ''
 for i in range( len(H[len(H)-1]) ):
-	hexad = hex(int(H[len(H)-1][i], 2) )[2:]
+	hexad = hex(H[len(H)-1][i])[2:]
 	hash += hexad
 
 print('hash length: ', len(hash))
