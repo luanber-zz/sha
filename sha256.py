@@ -97,27 +97,32 @@ def SIGMA_0(x):
 	o1 = rotate_right(x,2) 		 #bin str
 	o2 = rotate_right(x,13)		 #bin str
 	o3 = rotate_right(x,22)		 #bin str
-	return XOR(XOR(o1, o2), o3)
+	result = XOR(XOR(o1, o2), o3)
+	return pad_32(result)
 
 def SIGMA_1(x): #x (str)
 	o1 = rotate_right(x,6)		 #bin str
 	o2 = rotate_right(x,11)		 #bin str
 	o3 = rotate_right(x,25) 	 #bin str
-	return XOR(XOR(o1, o2), o3)
+	result = XOR(XOR(o1, o2), o3)
+	return pad_32(result)
 
 def sigma_0(x): #x (str)
 	o1 = rotate_right(x,7)		 #bin str
 	o2 = rotate_right(x,18)		 #bin str
 	ix = int(x, 2)
 	bin_shift_ix = bin(ix >> 3)[2:]
-	return XOR( XOR(o1, o2), bin_shift_ix)
+	result = XOR( XOR(o1, o2), bin_shift_ix)
+	return pad_32(result)
 
 def sigma_1(x): #x (str)
 	o1 = rotate_right(x,17)		 #bin str
 	o2 = rotate_right(x,19)		 #bin str
 	ix = int(x, 2)
 	bin_shift_ix = bin(ix >> 10)[2:]
-	return XOR(XOR(o1, o2), bin_shift_ix)
+	result = XOR(XOR(o1, o2), bin_shift_ix)
+	
+	return pad_32(result)
 
 #guaranteed that each op returns a 32bit word
 
