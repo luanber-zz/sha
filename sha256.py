@@ -51,41 +51,23 @@ def ADD(a1, a2, w=32):
 	i2 = int(a2,2)
 	quotient, reminder = divmod(i1 + i2, 2 ** w)
 
-	o1 = bin( reminder)[2:]
+	result = bin( reminder)[2:]
 
-	quotient, reminder = divmod(len(o1), 32)
-
-	if reminder == 0:
-		return o1
-
-	else:
-		return '0' * (32 - reminder) + o1
+	return pad_32(result)
 
 def AND(a1,a2):
 	i1 = int(a1,2)
 	i2 = int(a2,2)
-	o1 = bin( i1 & i2)[2:]
+	result = bin( i1 & i2)[2:]
 
-	quotient, reminder = divmod(len(o1), 32)
-
-	if reminder == 0:
-		return o1
-
-	else:
-		return '0' * (32 - reminder) + o1
+	return pad_32(result)
 
 def XOR(a1,a2):
 	i1 = int(a1,2)
 	i2 = int(a2,2)
-	o1 = bin( i1 ^ i2)[2:]
+	result = bin( i1 ^ i2)[2:]
 
-	quotient, reminder = divmod(len(o1), 32)
-
-	if reminder == 0:
-		return o1
-
-	else:
-		return '0' * (32 - reminder) + o1
+	return pad_32(result)
 
 
 def bin_rotate_right(a1, n, w= 32):
@@ -100,28 +82,16 @@ def CH(a1, a2, a3):
 	flipper = '1' * 32
 	a1_flip = XOR(a1, flipper)
 	a1_compl = ADD(a1_flip, '1')
-	o1 = XOR (AND(a1, a2), AND(a1_compl, a3))
+	result = XOR (AND(a1, a2), AND(a1_compl, a3))
 
-	quotient, reminder = divmod(len(o1), 32)
-
-	if reminder == 0:
-		return o1
-
-	else:
-		return '0' * (32 - reminder) + o1
+	return pad_32(result)
 
 def MAJ(a1, a2, a3):
 	o1 = AND(a1, a2)
 	o2 = AND(a1, a3)
-	res =  XOR(XOR(o1,o2),AND(a2,a3))
+	result =  XOR(XOR(o1,o2),AND(a2,a3))
 
-	quotient, reminder = divmod(len(res), 32)
-
-	if reminder == 0:
-		return res
-
-	else:
-		return '0' * (32 - reminder) + res
+	return(pad_32(result))
 
 def SIGMA_0(x):
 	o1 = rotate_right(x,2) 		 #bin str
@@ -150,6 +120,15 @@ def sigma_1(x): #x (str)
 	return XOR(XOR(o1, o2), bin_shift_ix)
 
 #guaranteed that each op returns a 32bit word
+
+def pad_32(result):
+	quotient, reminder = divmod(len(result), 32)
+
+	if reminder == 0:
+		return result
+
+	else:
+		return '0' * (32 - reminder) + result
 
 def k():
 	K_hex = [['428a2f98', '71374491', 'b5c0fbcf', 'e9b5dba5', '3956c25b', '59f111f1', '923f82a4', 'ab1c5ed5',],
