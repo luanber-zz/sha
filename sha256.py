@@ -53,21 +53,21 @@ def ADD(a1, a2, w=32):
 
 	result = bin( reminder)[2:]
 
-	return pad_32(result)
+	return pad(result, 32)
 
 def AND(a1,a2):
 	i1 = int(a1,2)
 	i2 = int(a2,2)
 	result = bin( i1 & i2)[2:]
 
-	return pad_32(result)
+	return pad(result, 32)
 
 def XOR(a1,a2):
 	i1 = int(a1,2)
 	i2 = int(a2,2)
 	result = bin( i1 ^ i2)[2:]
 
-	return pad_32(result)
+	return pad(result, 32)
 
 
 def bin_rotate_right(a1, n, w= 32):
@@ -84,28 +84,28 @@ def CH(a1, a2, a3):
 	a1_compl = ADD(a1_flip, '1')
 	result = XOR (AND(a1, a2), AND(a1_compl, a3))
 
-	return pad_32(result)
+	return pad(result, 32)
 
 def MAJ(a1, a2, a3):
 	o1 = AND(a1, a2)
 	o2 = AND(a1, a3)
 	result =  XOR(XOR(o1,o2),AND(a2,a3))
 
-	return(pad_32(result))
+	return pad(result, 32)
 
 def SIGMA_0(x):
 	o1 = rotate_right(x,2) 		 #bin str
 	o2 = rotate_right(x,13)		 #bin str
 	o3 = rotate_right(x,22)		 #bin str
 	result = XOR(XOR(o1, o2), o3)
-	return pad_32(result)
+	return pad(result, 32)
 
 def SIGMA_1(x): #x (str)
 	o1 = rotate_right(x,6)		 #bin str
 	o2 = rotate_right(x,11)		 #bin str
 	o3 = rotate_right(x,25) 	 #bin str
 	result = XOR(XOR(o1, o2), o3)
-	return pad_32(result)
+	return pad(result, 32)
 
 def sigma_0(x): #x (str)
 	o1 = rotate_right(x,7)		 #bin str
@@ -113,7 +113,7 @@ def sigma_0(x): #x (str)
 	ix = int(x, 2)
 	bin_shift_ix = bin(ix >> 3)[2:]
 	result = XOR( XOR(o1, o2), bin_shift_ix)
-	return pad_32(result)
+	return pad(result, 32)
 
 def sigma_1(x): #x (str)
 	o1 = rotate_right(x,17)		 #bin str
@@ -122,18 +122,18 @@ def sigma_1(x): #x (str)
 	bin_shift_ix = bin(ix >> 10)[2:]
 	result = XOR(XOR(o1, o2), bin_shift_ix)
 	
-	return pad_32(result)
+	return pad(result, 32)
 
 #guaranteed that each op returns a 32bit word
 
-def pad_32(result):
-	quotient, reminder = divmod(len(result), 32)
+def pad(result, n):
+	quotient, reminder = divmod(len(result), n)
 
 	if reminder == 0:
 		return result
 
 	else:
-		return '0' * (32 - reminder) + result
+		return '0' * (n - reminder) + result
 
 def k():
 	K_hex = [['428a2f98', '71374491', 'b5c0fbcf', 'e9b5dba5', '3956c25b', '59f111f1', '923f82a4', 'ab1c5ed5',],
@@ -245,17 +245,26 @@ for i in range(len(blocks)):
 
 hash_bin = ''
 
-
 for i in range(len(H[len(H)-1])):
 	hash_bin += H[len(H)-1][i]
 	print('length of the word H ', i, ' :', len(H[len(H)-1][i]))
+
 hash_hex = hex(int(hash_bin,2))[2:]
 
+hash_hex_2=''
+
+for i in range(len(H[len(H)-1])):
+	i_int = int(H[len(H)-1][i], 2)
+	i_hex = hex(i_int)[2:]
+	i_pad = pad(i_hex, 8)
+	hash_hex_2 += i_pad
 
 
 print("hash length: ", len(hash_bin))
-print("hash result: ", hash_bin , ":)")
+print("hash result: ", hash_bin , ":(")
 
-hash_hex += hex(int(hash_bin,2))[2:]
-print("hash length: ", len(hash_hex))
-print("hash result: ", hash_hex , ":)")
+print("hash made at once length: ", len(hash_hex))
+print("hash made at once result: ", hash_hex , ":(")
+
+print("hash made by parts length: ", len(hash_hex_2))
+print("hash made by parts result: ", hash_hex_2 , ":(")
