@@ -78,6 +78,10 @@ def bin_rotate_right(a1, n, w= 32):
 def rotate_right(string, n):
 	return string[-n:] + string[:-n]
 
+def shift_right(string, n):
+	return "0" * n + string[:-n]
+
+
 def CH(a1, a2, a3):
 	flipper = '1' * 32
 	a1_flip = XOR(a1, flipper)
@@ -103,24 +107,22 @@ def SIGMA_0(x):
 def SIGMA_1(x): #x (str)
 	o1 = rotate_right(x,6)		 #bin str
 	o2 = rotate_right(x,11)		 #bin str
-	o3 = rotate_right(x,25) 	 #bin str
+	o3 = rotate_right(x,25) 		 #bin str
 	result = XOR(XOR(o1, o2), o3)
 	return pad(result, 32)
 
 def sigma_0(x): #x (str)
 	o1 = rotate_right(x,7)		 #bin str
 	o2 = rotate_right(x,18)		 #bin str
-	ix = int(x, 2)
-	bin_shift_ix = bin(ix >> 3)[2:]
-	result = XOR( XOR(o1, o2), bin_shift_ix)
+	o3 = shift_right(x,3)
+	result = XOR( XOR(o1, o2), o3)
 	return pad(result, 32)
 
 def sigma_1(x): #x (str)
 	o1 = rotate_right(x,17)		 #bin str
 	o2 = rotate_right(x,19)		 #bin str
-	ix = int(x, 2)
-	bin_shift_ix = bin(ix >> 10)[2:]
-	result = XOR(XOR(o1, o2), bin_shift_ix)
+	o3 = shift_right(x, 10)
+	result = XOR(XOR(o1, o2), o3)
 	
 	return pad(result, 32)
 
